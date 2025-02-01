@@ -1,5 +1,5 @@
 import './App.css'
-import {useEffect, useState} from "react";
+import {useState} from "react";
 
 type Currency = {
     code: string;
@@ -13,18 +13,17 @@ const TEMP_CURRENCIES: Currency[] = [
 ]
 
 function App() {
-    const [currencies, setCurrencies] = useState<Currency[]>(TEMP_CURRENCIES)
-    const [exchangeRate, setExchangeRate] = useState<number>(1.1)
+    const [currencies] = useState<Currency[]>(TEMP_CURRENCIES)
 
-    const [fromCurrency, setFromCurrency] = useState<string>("USD");
-    const [toCurrency, setToCurrency] = useState<string>("EUR");
-    const [amount, setAmount] = useState<number>(100);
+    const [baseCurrency, setBaseCurrency] = useState<string>("USD");
+    const [quoteCurrency, setQuoteCurrency] = useState<string>("EUR");
+    const [baseAmount, setBaseAmount] = useState<number>(100);
+    const [resultString, setResultString] = useState<string>("");
 
-    const [result, setResult] = useState<number>(0);
-
-    useEffect(() => {
-        setResult(amount * exchangeRate);
-    }, [exchangeRate, amount])
+    function convert() {
+        const quoteAmount = baseAmount * 1.123456789;
+        setResultString(`${baseAmount.toFixed(2)} ${baseCurrency} = ${quoteAmount.toFixed(2)} ${quoteCurrency}`)
+    }
 
     return (
         <div className="container">
@@ -32,14 +31,14 @@ function App() {
             <div>From</div>
             <CurrencySelect
                 currencies={currencies}
-                value={fromCurrency}
-                onChange={value => setFromCurrency(value)}
+                value={baseCurrency}
+                onChange={value => setBaseCurrency(value)}
             />
             <div>To</div>
             <CurrencySelect
                 currencies={currencies}
-                value={toCurrency}
-                onChange={value => setToCurrency(value)}
+                value={quoteCurrency}
+                onChange={value => setQuoteCurrency(value)}
             />
             <div>Amount</div>
             <input
@@ -48,12 +47,12 @@ function App() {
                 placeholder="Enter amount"
                 min="0"
                 max={Number.MAX_SAFE_INTEGER}
-                value={amount}
-                onChange={e => setAmount(Number(e.target.value))}
+                value={baseAmount}
+                onChange={e => setBaseAmount(Number(e.target.value))}
             />
-            <button className="button">Convert</button>
+            <button className="button" onClick={convert}>Convert</button>
             <div className="result">
-                {amount} {fromCurrency} = {result.toFixed(2)} {toCurrency}
+                {resultString}
             </div>
         </div>
     )
