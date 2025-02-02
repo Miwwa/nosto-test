@@ -19,7 +19,8 @@ function App() {
     const [error, setError] = useState<string | null>(null);
     const [converted, setConverted] = useState<ConvertData | null>(null);
 
-    async function tryConvert() {
+    async function submitConvert(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
         if (isLoading) {
             return
         }
@@ -41,7 +42,7 @@ function App() {
     }
 
     return (
-        <div className="container">
+        <form className="container" onSubmit={submitConvert}>
             <h1 className="header">
                 Currency Exchange
             </h1>
@@ -65,7 +66,7 @@ function App() {
                 value={baseAmount}
                 onChange={e => setBaseAmount(Number(e.target.value))}
             />
-            <button className="button" onClick={tryConvert}>
+            <button className="button" type="submit">
                 Convert
             </button>
             {converted && !error && (
@@ -74,7 +75,7 @@ function App() {
                 </div>
             )}
             {error && <div className="error">{error}</div>}
-        </div>
+        </form>
     )
 }
 
