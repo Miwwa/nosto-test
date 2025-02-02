@@ -1,28 +1,29 @@
 import './App.css'
 import {useState} from "react";
+import {CurrencySelect} from "./CurrencySelect.tsx";
 
-type Currency = {
-    code: string;
-    name: string;
+type ConvertData = {
+    baseCurrency: string;
+    quoteCurrency: string;
+    baseAmount: number;
+    quoteAmount: number;
 }
 
-const TEMP_CURRENCIES: Currency[] = [
-    {code: "USD", name: "US Dollar"},
-    {code: "EUR", name: "Euro"},
-    {code: "GBP", name: "British Pound"},
-]
-
 function App() {
-    const [currencies] = useState<Currency[]>(TEMP_CURRENCIES)
-
     const [baseCurrency, setBaseCurrency] = useState<string>("USD");
     const [quoteCurrency, setQuoteCurrency] = useState<string>("EUR");
-    const [baseAmount, setBaseAmount] = useState<number>(100);
-    const [resultString, setResultString] = useState<string>("");
+    const [baseAmount, setBaseAmount] = useState<number>(1);
+
+    const [converted, setConverted] = useState<ConvertData | null>(null);
 
     function convert() {
         const quoteAmount = baseAmount * 1.123456789;
-        setResultString(`${baseAmount.toFixed(2)} ${baseCurrency} = ${quoteAmount.toFixed(2)} ${quoteCurrency}`)
+        setConverted({
+            baseCurrency,
+            quoteCurrency,
+            baseAmount,
+            quoteAmount,
+        })
     }
 
     return (
@@ -30,13 +31,11 @@ function App() {
             <h1 className="header">Currency Exchange</h1>
             <div>From</div>
             <CurrencySelect
-                currencies={currencies}
                 value={baseCurrency}
                 onChange={value => setBaseCurrency(value)}
             />
             <div>To</div>
             <CurrencySelect
-                currencies={currencies}
                 value={quoteCurrency}
                 onChange={value => setQuoteCurrency(value)}
             />
@@ -50,29 +49,15 @@ function App() {
                 value={baseAmount}
                 onChange={e => setBaseAmount(Number(e.target.value))}
             />
-            <button className="button" onClick={convert}>Convert</button>
-            <div className="result">
-                {resultString}
-            </div>
+            <button className="button" onClick={convert}>
+                Convert
+            </button>
+            {converted && (
+                <div className="result">
+                    {converted?.baseAmount.toFixed(2)} {converted?.baseCurrency} = {converted?.quoteAmount.toFixed(2)} {converted?.quoteCurrency}
+                </div>
+            )}
         </div>
-    )
-}
-
-type CurrencySelectProps = {
-    currencies: Currency[];
-    value: string;
-    onChange: (value: string) => void;
-}
-
-function CurrencySelect({currencies, value, onChange}: CurrencySelectProps) {
-    return (
-        <select className="dropdown" value={value} onChange={e => onChange(e.target.value)}>
-            {currencies.map(currency => (
-                <option key={currency.code} value={currency.code}>
-                    {`${currency.code} ${currency.name}`}
-                </option>
-            ))}
-        </select>
     )
 }
 
