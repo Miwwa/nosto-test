@@ -1,6 +1,7 @@
 import './App.css'
 import {useState} from "react";
 import {CurrencySelect} from "./CurrencySelect.tsx";
+import {convert} from "./ApiClient.ts";
 
 type ConvertData = {
     baseCurrency: string;
@@ -14,21 +15,36 @@ function App() {
     const [quoteCurrency, setQuoteCurrency] = useState<string>("EUR");
     const [baseAmount, setBaseAmount] = useState<number>(1);
 
+    const [isLoading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     const [converted, setConverted] = useState<ConvertData | null>(null);
 
-    function convert() {
-        const quoteAmount = baseAmount * 1.123456789;
-        setConverted({
-            baseCurrency,
-            quoteCurrency,
-            baseAmount,
-            quoteAmount,
-        })
+    async function tryConvert() {
+        if (isLoading) {
+            return
+        }
+
+        setLoading(true)
+        try {
+            const data = await convert(baseCurrency, quoteCurrency, baseAmount)
+            setConverted(data)
+            setError(null)
+        } catch (e) {
+            if (e instanceof Error) {
+                setError(e.message)
+            } else {
+                setError(String(e))
+            }
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
         <div className="container">
-            <h1 className="header">Currency Exchange</h1>
+            <h1 className="header">
+                Currency Exchange
+            </h1>
             <div>From</div>
             <CurrencySelect
                 value={baseCurrency}
@@ -49,14 +65,15 @@ function App() {
                 value={baseAmount}
                 onChange={e => setBaseAmount(Number(e.target.value))}
             />
-            <button className="button" onClick={convert}>
+            <button className="button" onClick={tryConvert}>
                 Convert
             </button>
-            {converted && (
+            {converted && !error && (
                 <div className="result">
                     {converted?.baseAmount.toFixed(2)} {converted?.baseCurrency} = {converted?.quoteAmount.toFixed(2)} {converted?.quoteCurrency}
                 </div>
             )}
+            {error && <div className="error">{error}</div>}
         </div>
     )
 }
