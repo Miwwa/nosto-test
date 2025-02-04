@@ -13,6 +13,8 @@ import io.vertx.ext.web.validation.builder.Parameters;
 import io.vertx.ext.web.validation.builder.ValidationHandlerBuilder;
 import io.vertx.json.schema.*;
 
+import java.math.BigDecimal;
+
 import static io.vertx.json.schema.common.dsl.Schemas.numberSchema;
 import static io.vertx.json.schema.common.dsl.Schemas.stringSchema;
 import static io.vertx.json.schema.draft7.dsl.Keywords.minimum;
@@ -42,17 +44,23 @@ public class MainVerticle extends AbstractVerticle {
         currencyConverterService = new CurrencyConverterService(currencyRateProvider);
 
         Router router = Router.router(vertx);
-        router
-            .get("/api/convert/:baseCurrency/:quoteCurrency")
+        router.get("/api/convert/:baseCurrency/:quoteCurrency")
             .handler(buildConvertValidationHandler())
             .handler(this::convertRequestHandler)
             .failureHandler(this::errorHandler);
 
-        int port = getPort();
-        HttpServer server = vertx.createHttpServer();
-        server.requestHandler(router).listen(port).onComplete(srv -> {
-            log.info(String.format("Server running on port %d", port));
-            startPromise.complete();
+        currencyConverterService.init(vertx).andThen(initResult -> {
+            if (initResult.failed()) {
+                startPromise.fail(initResult.cause());
+                return;
+            }
+
+            int port = getPort();
+            HttpServer server = vertx.createHttpServer();
+            server.requestHandler(router).listen(port).onComplete(srv -> {
+                log.info(String.format("Server running on port %d", port));
+                startPromise.complete();
+            });
         });
     }
 
@@ -67,19 +75,19 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private void convertRequestHandler(RoutingContext ctx) {
+        // parameters are guaranteed to be valid since validation handler ensures it
         String baseCurrency = ctx.pathParam("baseCurrency");
         String quoteCurrency = ctx.pathParam("quoteCurrency");
+        BigDecimal baseAmount = new BigDecimal(ctx.queryParam("amount").get(0));
 
-        // `amount` is guaranteed to be valid since validation handler ensures it
-        float baseAmount = Float.parseFloat(ctx.queryParam("amount").get(0));
-        currencyConverterService.convert(baseCurrency, quoteCurrency, baseAmount)
-            .compose(quoteAmount -> {
-                ConvertResponse res = new ConvertResponse(baseCurrency, quoteCurrency, baseAmount, quoteAmount);
-                return ctx.json(res);
-            })
-            .onFailure(e -> {
-                ctx.fail(500, e);
-            });
+        var quoteAmount = currencyConverterService.convert(baseCurrency, quoteCurrency, baseAmount);
+        if (quoteAmount == null) {
+            String errorMessage = String.format("Exchange rate is not available for currency pair %s -> %s", baseCurrency, quoteCurrency);
+            ctx.fail(400, new RuntimeException(errorMessage));
+        }
+
+        ConvertResponse res = new ConvertResponse(baseCurrency, quoteCurrency, baseAmount, quoteAmount);
+        ctx.json(res);
     }
 
     private void errorHandler(RoutingContext ctx) {

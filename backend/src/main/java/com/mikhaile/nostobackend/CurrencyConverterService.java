@@ -1,8 +1,15 @@
 package com.mikhaile.nostobackend;
 
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
+
+import java.math.BigDecimal;
 
 public class CurrencyConverterService {
+
+    private final Logger log = LoggerFactory.getLogger(CurrencyConverterService.class);
 
     private final CurrencyRateProvider currencyRateProvider;
     private final CurrencyRateCache cache;
@@ -12,30 +19,29 @@ public class CurrencyConverterService {
         this.cache = new CurrencyRateCache();
     }
 
-    public Future<Float> convert(String baseCurrency, String quoteCurrency, Float baseAmount) {
-        // todo: make it thread safe
-        if (cache.isExpired()) {
-            return currencyRateProvider.getAllRates()
-                .compose(currencyRates -> {
-                    cache.setFromArray(currencyRates);
-                    return getRateAndCalculate(baseCurrency, quoteCurrency, baseAmount);
-                });
-        }
-        return getRateAndCalculate(baseCurrency, quoteCurrency, baseAmount);
+    public Future<Void> init(Vertx vertx) {
+        // in production, it should check the time of the next update of the external API (swop.cx)
+        // now, it updates cache every 24h for simplicity
+        int updateRateMs = 24 * 3600 * 1000;
+        vertx.setPeriodic(updateRateMs, t -> updateRatesCache());
+        return updateRatesCache();
     }
 
-    private Future<Float> getRateAndCalculate(String baseCurrency, String quoteCurrency, Float baseAmount) {
-        Float cachedRate = cache.get(baseCurrency, quoteCurrency);
+    private Future<Void> updateRatesCache() {
+        log.info("Updating exchange rates...");
+        return currencyRateProvider.getAllRates()
+            .compose(currencyRates -> {
+                cache.setFromArray(currencyRates);
+                log.info("Exchange rates updated");
+                return Future.succeededFuture();
+            });
+    }
+
+    public BigDecimal convert(String baseCurrency, String quoteCurrency, BigDecimal baseAmount) {
+        BigDecimal cachedRate = cache.get(baseCurrency, quoteCurrency);
         if (cachedRate == null) {
-            return Future.failedFuture(String.format("Exchange rate is not available for currency pair %s -> %s", baseCurrency, quoteCurrency));
+            return null;
         }
-        float quoteAmount = getQuoteAmount(baseAmount, cachedRate);
-        return Future.succeededFuture(quoteAmount);
+        return baseAmount.multiply(cachedRate);
     }
-
-    private float getQuoteAmount(float amount, float rate) {
-        return amount * rate;
-    }
-
-
 }

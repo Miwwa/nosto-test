@@ -1,9 +1,11 @@
 package com.mikhaile.nostobackend;
 
+import java.math.BigDecimal;
+
 record ConvertResponse(
     String baseCurrency,
     String quoteCurrency,
-    Float baseAmount,
-    Float quoteAmount
+    BigDecimal baseAmount,
+    BigDecimal quoteAmount
 ) {
 }
