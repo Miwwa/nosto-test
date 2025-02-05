@@ -8,6 +8,7 @@ import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.CSPHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.validation.ValidationHandler;
 import io.vertx.ext.web.validation.builder.Parameters;
@@ -48,9 +49,23 @@ public class MainVerticle extends AbstractVerticle {
         // for production, you should list only allowed domains here
         var corsHandler = CorsHandler.create().addOrigin("*");
 
+        // This policy allows images, scripts, AJAX, and CSS from the same origin
+        // and does not allow any other resources to load (e.g., object, frame, media, etc.).
+        var cspHandler = CSPHandler.create()
+            .addDirective("default-src", "none")
+            .addDirective("script-src", "self")
+            .addDirective("connect-src", "self")
+            .addDirective("style-src", "self")
+            .addDirective("img-src", "self");
+
         Router router = Router.router(vertx);
-        router.get("/api/convert/:baseCurrency/:quoteCurrency")
+
+        // turn on cors and csp headers for all requests
+        router.route()
             .handler(corsHandler)
+            .handler(cspHandler);
+
+        router.get("/api/convert/:baseCurrency/:quoteCurrency")
             .handler(buildConvertValidationHandler())
             .handler(this::convertRequestHandler)
             .failureHandler(this::errorHandler);
@@ -90,6 +105,7 @@ public class MainVerticle extends AbstractVerticle {
         if (quoteAmount == null) {
             String errorMessage = String.format("Exchange rate is not available for currency pair %s -> %s", baseCurrency, quoteCurrency);
             ctx.fail(400, new RuntimeException(errorMessage));
+            return;
         }
 
         ConvertResponse res = new ConvertResponse(baseCurrency, quoteCurrency, baseAmount, quoteAmount);
@@ -99,6 +115,7 @@ public class MainVerticle extends AbstractVerticle {
     private void errorHandler(RoutingContext ctx) {
         ctx.response()
             .setStatusCode(ctx.statusCode())
+            .putHeader("content-type", "application/json")
             .end(new JsonObject()
                 .put("error", ctx.statusCode() == 400 ? "Bad Request" : "Unexpected Error")
                 .put("message", ctx.failure().getMessage())
