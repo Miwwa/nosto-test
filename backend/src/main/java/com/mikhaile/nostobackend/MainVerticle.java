@@ -103,8 +103,7 @@ public class MainVerticle extends AbstractVerticle {
 
         var quoteAmount = currencyConverterService.convert(baseCurrency, quoteCurrency, baseAmount);
         if (quoteAmount == null) {
-            String errorMessage = String.format("Exchange rate is not available for currency pair %s -> %s", baseCurrency, quoteCurrency);
-            ctx.fail(400, new RuntimeException(errorMessage));
+            ctx.fail(400, new RuntimeException("EXCHANGE_RATE_NOT_FOUNT"));
             return;
         }
 
@@ -118,7 +117,7 @@ public class MainVerticle extends AbstractVerticle {
             .putHeader("content-type", "application/json")
             .end(new JsonObject()
                 .put("error", ctx.statusCode() == 400 ? "Bad Request" : "Unexpected Error")
-                .put("message", ctx.failure().getMessage())
+                .put("code", ctx.failure().getMessage())
                 .toBuffer()
             );
     }

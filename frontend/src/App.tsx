@@ -75,7 +75,7 @@ function App() {
             {error && <div className="error">
                 {t("Error")}:
                 <br/>
-                {error}
+                {t(error)}
             </div>}
         </form>
     )

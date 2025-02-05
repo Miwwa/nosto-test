@@ -9,7 +9,7 @@ export type ConvertData = {
 
 type ApiError = {
     error: string;
-    message: string;
+    code: string;
 }
 
 export async function convert(baseCurrency: string, quoteCurrency: string, baseAmount: number): Promise<ConvertData> {
@@ -18,8 +18,14 @@ export async function convert(baseCurrency: string, quoteCurrency: string, baseA
     const res = await fetch(url)
     if (!res.ok) {
         const message = await res.json()
-            .then(data => (data as ApiError)?.message)
-            .catch(() => "Unknown error")
+            .then(data => {
+                const errorCode = (data as ApiError)?.code;
+                if (!errorCode) {
+                    return "Unexpected error";
+                }
+                return errorCode;
+            })
+            .catch(() => "Unexpected error")
         throw new Error(message)
     }
 

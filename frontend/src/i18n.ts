@@ -12,6 +12,7 @@ const resources = {
             "Convert": "Convert",
             "Error": "Error",
             "Enter amount": "Enter amount",
+            "EXCHANGE_RATE_NOT_FOUNT": "Exchange rate is not available for currency pair",
             "currencies": {
                 "USD": "US Dollar",
                 "EUR": "Euro",
@@ -35,6 +36,7 @@ const resources = {
             "Convert": "Конвертировать",
             "Error": "Ошибка",
             "Enter amount": "Введите сумму",
+            "EXCHANGE_RATE_NOT_FOUNT": "Курс обмена недоступен для валютной пары",
             "currencies": {
                 "USD": "Доллар США",
                 "EUR": "Евро",
