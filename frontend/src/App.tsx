@@ -1,16 +1,13 @@
 import './App.css'
 import {useState} from "react";
+import {useTranslation} from "react-i18next";
 import {CurrencySelect} from "./CurrencySelect.tsx";
-import {convert} from "./ApiClient.ts";
-
-type ConvertData = {
-    baseCurrency: string;
-    quoteCurrency: string;
-    baseAmount: number;
-    quoteAmount: number;
-}
+import {convert, ConvertData} from "./ApiClient.ts";
+import LanguageSelect from "./LanguageSelect.tsx";
 
 function App() {
+    const {t} = useTranslation();
+
     const [baseCurrency, setBaseCurrency] = useState<string>("EUR");
     const [quoteCurrency, setQuoteCurrency] = useState<string>("USD");
     const [baseAmount, setBaseAmount] = useState<number>(1);
@@ -44,30 +41,31 @@ function App() {
     return (
         <form className="container" onSubmit={submitConvert}>
             <h1 className="header">
-                Currency Exchange
+                {t("Currency Exchange")}
+                <LanguageSelect className="language-select"/>
             </h1>
-            <div>From</div>
+            <div>{t("From")}</div>
             <CurrencySelect
                 value={baseCurrency}
                 onChange={value => setBaseCurrency(value)}
             />
-            <div>To</div>
+            <div>{t("To")}</div>
             <CurrencySelect
                 value={quoteCurrency}
                 onChange={value => setQuoteCurrency(value)}
             />
-            <div>Amount</div>
+            <div>{t("Amount")}</div>
             <input
                 type="number"
                 className="input-field"
-                placeholder="Enter amount"
+                placeholder={t("Enter amount")}
                 min="0"
                 max={Number.MAX_SAFE_INTEGER}
                 value={baseAmount}
                 onChange={e => setBaseAmount(Number(e.target.value))}
             />
             <button className="button" type="submit">
-                Convert
+                {t("Convert")}
             </button>
             {converted && !error && (
                 <div className="result">
@@ -75,7 +73,7 @@ function App() {
                 </div>
             )}
             {error && <div className="error">
-                Error:
+                {t("Error")}:
                 <br/>
                 {error}
             </div>}
