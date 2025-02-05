@@ -74,7 +74,11 @@ function App() {
                     {converted?.baseAmount.toFixed(2)} {converted?.baseCurrency} = {converted?.quoteAmount.toFixed(2)} {converted?.quoteCurrency}
                 </div>
             )}
-            {error && <div className="error">{error}</div>}
+            {error && <div className="error">
+                Error:
+                <br/>
+                {error}
+            </div>}
         </form>
     )
 }

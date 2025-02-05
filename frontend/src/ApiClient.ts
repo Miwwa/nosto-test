@@ -7,12 +7,20 @@ export type ConvertData = {
     quoteAmount: number;
 }
 
+type ApiError = {
+    error: string;
+    message: string;
+}
+
 export async function convert(baseCurrency: string, quoteCurrency: string, baseAmount: number): Promise<ConvertData> {
     const url = `${API_BASE_URL}/api/convert/${baseCurrency}/${quoteCurrency}?amount=${baseAmount}`
 
     const res = await fetch(url)
     if (!res.ok) {
-        throw new Error(`Failed to convert`)
+        const message = await res.json()
+            .then(data => (data as ApiError)?.message)
+            .catch(() => "Unknown error")
+        throw new Error(message)
     }
 
     return res.json()
