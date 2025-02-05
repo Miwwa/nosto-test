@@ -1,4 +1,4 @@
-const BASE_URL = "/api"
+const API_BASE_URL: string = import.meta.env.DEV ? "http://localhost:8888" : "";
 
 export type ConvertData = {
     baseCurrency: string;
@@ -8,7 +8,7 @@ export type ConvertData = {
 }
 
 export async function convert(baseCurrency: string, quoteCurrency: string, baseAmount: number): Promise<ConvertData> {
-    const url = `${BASE_URL}/conversions/${baseCurrency}/${quoteCurrency}?amount=${baseAmount}`
+    const url = `${API_BASE_URL}/api/convert/${baseCurrency}/${quoteCurrency}?amount=${baseAmount}`
 
     const res = await fetch(url)
     if (!res.ok) {

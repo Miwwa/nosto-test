@@ -8,6 +8,7 @@ import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.validation.ValidationHandler;
 import io.vertx.ext.web.validation.builder.Parameters;
 import io.vertx.ext.web.validation.builder.ValidationHandlerBuilder;
@@ -43,8 +44,13 @@ public class MainVerticle extends AbstractVerticle {
         }
         currencyConverterService = new CurrencyConverterService(currencyRateProvider);
 
+        // allow any origin for simplicity
+        // for production, you should list only allowed domains here
+        var corsHandler = CorsHandler.create().addOrigin("*");
+
         Router router = Router.router(vertx);
         router.get("/api/convert/:baseCurrency/:quoteCurrency")
+            .handler(corsHandler)
             .handler(buildConvertValidationHandler())
             .handler(this::convertRequestHandler)
             .failureHandler(this::errorHandler);

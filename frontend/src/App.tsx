@@ -11,8 +11,8 @@ type ConvertData = {
 }
 
 function App() {
-    const [baseCurrency, setBaseCurrency] = useState<string>("USD");
-    const [quoteCurrency, setQuoteCurrency] = useState<string>("EUR");
+    const [baseCurrency, setBaseCurrency] = useState<string>("EUR");
+    const [quoteCurrency, setQuoteCurrency] = useState<string>("USD");
     const [baseAmount, setBaseAmount] = useState<number>(1);
 
     const [isLoading, setLoading] = useState<boolean>(false);
