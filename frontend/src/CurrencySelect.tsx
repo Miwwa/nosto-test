@@ -1,4 +1,17 @@
-import {CURRENCIES} from "./Currencies.ts";
+import {useTranslation} from "react-i18next";
+
+const CURRENCIES = [
+    "USD",
+    "EUR",
+    "GBP",
+    "JPY",
+    "AUD",
+    "CAD",
+    "CNY",
+    "CHF",
+    "INR",
+    "NZD"
+]
 
 type CurrencySelectProps = {
     value: string;
@@ -6,11 +19,13 @@ type CurrencySelectProps = {
 }
 
 export function CurrencySelect({value, onChange}: CurrencySelectProps) {
+    const {t} = useTranslation();
+
     return (
         <select className="dropdown" value={value} onChange={e => onChange(e.target.value)}>
-            {CURRENCIES.map(currency => (
-                <option key={currency.code} value={currency.code}>
-                    {`${currency.code} ${currency.name}`}
+            {CURRENCIES.map(code => (
+                <option key={code} value={code}>
+                    {`${code} ${t(`currencies.${code}`)}`}
                 </option>
             ))}
         </select>

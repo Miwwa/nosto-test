@@ -12,6 +12,18 @@ const resources = {
             "Convert": "Convert",
             "Error": "Error",
             "Enter amount": "Enter amount",
+            "currencies": {
+                "USD": "US Dollar",
+                "EUR": "Euro",
+                "GBP": "British Pound",
+                "JPY": "Japanese Yen",
+                "AUD": "Australian Dollar",
+                "CAD": "Canadian Dollar",
+                "CNY": "Chinese Yuan",
+                "CHF": "Swiss Franc",
+                "INR": "Indian Rupee",
+                "NZD": "New Zealand Dollar"
+            }
         },
     },
     ru: {
@@ -23,6 +35,18 @@ const resources = {
             "Convert": "Конвертировать",
             "Error": "Ошибка",
             "Enter amount": "Введите сумму",
+            "currencies": {
+                "USD": "Доллар США",
+                "EUR": "Евро",
+                "GBP": "Британский фунт",
+                "JPY": "Японская иена",
+                "AUD": "Австралийский доллар",
+                "CAD": "Канадский доллар",
+                "CNY": "Китайский юань",
+                "CHF": "Швейцарский франк",
+                "INR": "Индийская рупия",
+                "NZD": "Новозеландский доллар"
+            }
         },
     },
 };
