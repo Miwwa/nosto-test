@@ -30,8 +30,10 @@ docker build -t currency-converter .
 2. Run the container:
 
 ```shell
-   docker run -p 8888:8888 -e SWOP_API_KEY=<YOUR_SWOP_API_KEY> currency-converter
+docker run -p 8888:8888 -e SWOP_API_KEY=<YOUR_SWOP_API_KEY> currency-converter
 ```
+
+3. Open browser by the link [http://localhost:8888]([http://localhost:8888])
 
 ---
 ## Interacting with the API
