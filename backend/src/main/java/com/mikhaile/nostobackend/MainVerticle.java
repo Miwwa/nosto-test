@@ -10,6 +10,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.CSPHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.validation.ValidationHandler;
 import io.vertx.ext.web.validation.builder.Parameters;
 import io.vertx.ext.web.validation.builder.ValidationHandlerBuilder;
@@ -64,6 +65,9 @@ public class MainVerticle extends AbstractVerticle {
         router.route()
             .handler(corsHandler)
             .handler(cspHandler);
+
+        // serve frontend
+        router.route("/*").handler(StaticHandler.create("webroot"));
 
         router.get("/api/convert/:baseCurrency/:quoteCurrency")
             .handler(buildConvertValidationHandler())
